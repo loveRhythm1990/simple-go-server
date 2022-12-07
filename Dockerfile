@@ -1,15 +1,14 @@
 FROM golang:1.16-alpine
 
-WORKDIR /app
+ENV GOPATH=/go
 
-# Download necessary Go modules
+WORKDIR /go/src/github.com/loveRhythm1990/simple-go-server
+
 COPY go.mod ./
-RUN go mod download
-
-
 COPY *.go ./
+COPY vendor/ vendor
 
-RUN go build -o /simple-server
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build --mod=vendor -o /simple-server
 
 EXPOSE 8080
 
