@@ -1,0 +1,63 @@
+apiVersion: core.matrixone-cloud/v1alpha1
+kind: Cluster
+metadata:
+  annotations:
+    matrixone.cloud/enable-aksk-authorize: "true"
+  labels:
+    matrixone.cloud/role: root
+  name: freetier-01
+spec:
+  cnSets:
+    - managed:
+        config: |
+          [cn.frontend]
+          saveQueryResult = "on"
+          queryResultTimeout = 72
+          [observability]
+          metricUpdateStorageUsageInterval = "15m"
+          enableStmtMerge = true
+        resources: {}
+        sharedStorageCache:
+          memoryCacheSize: 1Gi
+      name: default
+      profile: cn.standard
+      scalingConfig:
+        maxReplicas: 10
+        minReplicas: 2
+        policy: AutoScaling
+      replicas: 2
+  dnSets:
+    - managed:
+        resources: {}
+      name: default
+      profile: dn.standard
+      replicas: 1
+  endpoint:
+    mode: Dedicated
+    proxySpec:
+      image: matrixorigin/matrixone:nightly-47684bd2
+      managed:
+        profile: test
+      pluginImage: registry.cn-hangzhou.aliyuncs.com/ack-cos/plugin:20230515
+      replicas: 1
+    whitelistIPRanges:
+      - 0.0.0.0/0
+  logSet:
+    managed:
+      resources: {}
+    name: default
+    profile: log.standard
+    replicas: 3
+  managed:
+    imageRepository: matrixorigin/matrixone
+    localServiceRef:
+      name: local-service
+    objectStorage:
+      path: mo-hangzhou-dev/mo-dev-20230818
+      region: cn-hangzhou
+  state: Active
+  unitSelector:
+    matchLabels:
+      matrixone.cloud/cloud: aliyun
+      matrixone.cloud/region: cn-hangzhou
+  version: nightly-47684bd2

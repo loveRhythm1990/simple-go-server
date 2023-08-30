@@ -1,0 +1,39 @@
+name: aliyun cloud service preview
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "* * * * *"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push the
+      # added or changed files to the repository.
+      contents: write
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v3
+
+      - name: run scripts
+        run: /bin/sh test.sh
+
+      - name: Commit files
+        id: commit-files
+        run: |
+          if [ -n "$(git status --porcelain ./resource/freetier-01.yaml)" ]; then
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add ./resource/freetier-01.yaml
+            git commit -m "auto: upgrade mo cluster"
+            echo "hasChange=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changes detected"
+          fi
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        if: ${{ steps.commit-files.outputs.hasChange == 'true' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
