@@ -20,3 +20,4 @@ fi
 
 sed -E -i s/"^(  version: nightly-[0-9a-z]{8})"/"  version: ${newTag}"/ ./resources/freetier-01.yaml
 
+cat ./resources/freetier-01.yaml
