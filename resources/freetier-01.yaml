@@ -60,4 +60,4 @@ spec:
     matchLabels:
       matrixone.cloud/cloud: aliyun
       matrixone.cloud/region: cn-hangzhou
-  version: nightly-47684bd2
+  version: nightly-0c2aed12
