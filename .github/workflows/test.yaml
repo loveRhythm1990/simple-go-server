@@ -1,8 +1,21 @@
 name: aliyun cloud service preview
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "* * * * *"
+    - cron: '* * * * *'
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'branch in github repo'
+        required: true
+        type: string
+      cluster-name:
+        description: 'mo cluster name should upgrade'
+        required: true
+        type: string
+      mo-version-tag:
+        description: 'tag value to upgrade'
+        required: true
+        type: string
 
 jobs:
   deploy:
@@ -15,9 +28,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: run scripts
-        run: /bin/sh test.sh
+        run: /bin/sh test.sh ${{ inputs.cluster-name }} ${{ inputs.mo-version-tag }}
 
-      - name: Commit files
+      - name: commit files
         id: commit-files
         run: |
           if [ -n "$(git status --porcelain ./resources/freetier-01.yaml)" ]; then
@@ -29,7 +42,7 @@ jobs:
           else
             echo "No changes detected"
           fi
-      - name: Push changes
+      - name: push changes
         uses: ad-m/github-push-action@master
         if: ${{ steps.commit-files.outputs.hasChange == 'true' }}
         with:
