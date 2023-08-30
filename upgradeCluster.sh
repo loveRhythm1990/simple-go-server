@@ -8,7 +8,13 @@ replaceClusterVersion() {
   echo "replaceClusterVersion args: " "$@"
   clusterName=$1
   newVersion=$2
-  sed -E -i s/"^(  version: nightly-[0-9a-z]{8})"/"  version: ${newVersion}"/ ./resources/"${clusterName}".yaml
+
+  if [ -f ./resources/"${clusterName}".yaml ]; then
+    sed -E -i s/"^(  version: nightly-[0-9a-z]{8})"/"  version: ${newVersion}"/ ./resources/"${clusterName}".yaml
+  else
+    echo "cluster not found, exit 1"
+    exit 1
+  fi
 }
 
 if [ $# -ge 2 ]; then
