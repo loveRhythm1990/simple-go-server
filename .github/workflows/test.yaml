@@ -4,10 +4,6 @@ on:
     - cron: '* * * * *'
   workflow_dispatch:
     inputs:
-      branch:
-        description: 'branch in github repo'
-        required: true
-        type: string
       cluster-name:
         description: 'mo cluster name should upgrade'
         required: true
