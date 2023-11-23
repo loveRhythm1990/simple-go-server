@@ -2,17 +2,34 @@ package main
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
+	"github.com/gin-gonic/gin"
+	"io"
 	"net/http"
 )
 
-func handler(w http.ResponseWriter, r *http.Request)  {
-	logrus.Infof("receive request: %s\n")
-	fmt.Fprintf(w, "simple http server: %s", r.URL.Path[1:])
+func addRouter(r *gin.Engine) {
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ok",
+		})
+	})
+
+	r.POST("/hook", func(c *gin.Context) {
+
+		data, err := io.ReadAll(c.Request.Body)
+		must(err)
+
+		fmt.Fprintf(gin.DefaultWriter, neat(string(data)))
+		fmt.Fprintf(gin.DefaultWriter, "\n")
+
+		c.JSON(http.StatusOK, gin.H{
+			"message": "ok",
+		})
+	})
 }
 
 func main() {
-	logrus.Infof("start a simple http server")
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
+	r := gin.Default()
+	addRouter(r)
+	must(r.Run(":8080"))
 }
